@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Apache Server Status</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @livewireStyles
 </head>
 <body>
     <div class="container">
@@ -21,33 +22,12 @@
             </div>
         @endif
 
-        @if (!empty($ip_count))
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>IP Address</th>
-                        <th>Count</th>
-                        <th>Country</th>
-                        <th>Provider</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @php
-                    arsort($ip_count);
-                    @endphp
-                    @foreach ($ip_count as $ip => $count)
-                        <tr>
-                            <td>{{ $ip }}</td>
-                            <td>{{ $count }}</td>
-                            <td>Todo: Country</td>
-                            <td>Todo: Provider</td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        @else
-            <p>No IP addresses found.</p>
-        @endif
+        <h2>Using Livewire component:</h2>
+        <livewire:status-table-controller :ips="$ips" :min_connections="$min_connections" />
+
     </div>
+
+
+    @livewireScripts
 </body>
 </html>

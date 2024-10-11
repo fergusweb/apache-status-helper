@@ -38,12 +38,12 @@ class ApacheStatusController extends Controller
     {
         try {
             // Use the service to fetch and count IPs
-            $ip_count = $this->apacheStatusService->fetchAndCountIPs();
+            $ips = $this->apacheStatusService->fetchAndCountIPs();
 
             // Pass the IP counts to the view
             return view(
                 'apache-status', [
-                'ip_count' => $ip_count,
+                'ips' => $ips,
                 'min_connections' => $this->apacheStatusService->min_connections
                 ]
             );

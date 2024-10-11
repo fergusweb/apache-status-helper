@@ -71,15 +71,19 @@ class ApacheStatusService
                 // Create a unique cache key for each URL based on the URL itself
                 $cacheKey = 'apache_server_status_ips_' . md5($url);
 
+                // Cache time-to-live in seconds
+                $cacheTTL = 90;
+
                 $responseBody = Cache::remember(
-                    $cacheKey, 90, function () use ($url) {
+                    $cacheKey, $cacheTTL, function () use ($url) {
+
                         // Fetch the server-status page using the Http facade
                         $response = Http::timeout(5)->get($url);
 
                         if ($response->failed()) {
                             throw new \Exception("Failed to fetch: $url");
                         }
-                        echo "Loaded: $url <br>";
+                        //echo "Loaded: $url <br>";
 
                         // Return the response body to be cached
                         return $response->body();
@@ -106,8 +110,23 @@ class ApacheStatusService
                 }
             }
 
+            // Sort by count
+            arsort($ip_counter);
 
-            return $ip_counter;
+            //return $ip_counter;
+
+
+            // Turn this into a new data structure
+            $ip_data = array();
+            foreach ($ip_counter as $ip => $count) {
+                $ip_data[] = (object) array(
+                    'ip' => $ip,
+                    'count' => $count,
+                    'country' => null,
+                    'provider' => null,
+                );
+            }
+            return $ip_data;
 
         } catch (\Exception $e) {
             throw new \Exception("An error occurred: " . $e->getMessage());
