@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Laravel'),
+    'name' => env('APP_NAME', 'Apache Status Helper'),
 
     /*
     |--------------------------------------------------------------------------
@@ -122,5 +122,12 @@ return [
         'driver' => env('APP_MAINTENANCE_DRIVER', 'file'),
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
+
+
+    /**
+     * Apache Status URLs, loaded from comma separated value in .env file
+     */
+    'apache_status_urls' => explode(',', env('APACHE_STATUS_URLS')),
+
 
 ];
