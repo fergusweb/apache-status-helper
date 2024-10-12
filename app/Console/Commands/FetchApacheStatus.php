@@ -88,10 +88,6 @@ class FetchApacheStatus extends Command implements PromptsForMissingInput
             return 1;
         }
 
-
-        // Set the URL of the server-status page
-        //$url = 'https://server.tailored.com.au/server-status';
-
         try {
             foreach ($urls as $url) {
                 // Fetch the server-status page

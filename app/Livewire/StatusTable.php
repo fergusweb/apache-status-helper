@@ -4,11 +4,12 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use App\Services\ApacheStatusService;
+use App\Services\LookupIP;
 
 /**
- * Livewire Controller
+ * Livewire Component
  */
-class StatusTableController extends Component
+class StatusTable extends Component
 {
 
     /**
@@ -27,6 +28,7 @@ class StatusTableController extends Component
 
 
 
+
     /**
      * Mount function
      *
@@ -35,10 +37,14 @@ class StatusTableController extends Component
      *
      * @return void
      */
-    public function mount($ips = array(), $min_connections=null)
+    public function mount($ips = array(), $min_connections=null, LookupIP $lookupIP)
     {
         $this->ips = $ips;
         $this->min_connections = $min_connections;
+
+        foreach ($this->ips as $key => $ip) {
+            $this->ips[$key] = $lookupIP->prepopulate($ip);
+        }
     }
 
     /**
@@ -49,7 +55,7 @@ class StatusTableController extends Component
     public function render()
     {
         return view(
-            'livewire.status-table-controller', [
+            'livewire.status-table', [
                 'ips'             => $this->ips,
                 'min_connections' => $this->min_connections
             ]
@@ -57,12 +63,23 @@ class StatusTableController extends Component
     }
 
 
-    public function lookup($key=null)
+    /**
+     * Perform lookup when requested by LiveWire
+     *
+     * @param string   $key      Array key requested by LiveWire
+     * @param LookupIP $lookupIP Service class
+     *
+     * @return void
+     */
+    public function lookup($key=null, LookupIP $lookupIP)
     {
-        dd("Looking up: $key");
-        //$row = $this->ips[$ip];
-        //$this->ips[$ip]->provider = 'testing';
-        //$this->provider = 'testing';
+        $row = $this->ips[$key];
+
+        $this->ips[$key]->provider = $lookupIP->provider($row->address);
+        $this->ips[$key]->country = $lookupIP->country($row->address);
+        $this->ips[$key]->countryCode = $lookupIP->countryCode($row->address);
     }
+
+
 
 }

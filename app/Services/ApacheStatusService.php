@@ -20,6 +20,13 @@ class ApacheStatusService
     public $min_connections = 5;
 
     /**
+     * Cache duration (seconds)
+     *
+     * @var int
+     */
+    public $cache_ttl;
+
+    /**
      * Array of URLs to fetch
      *
      * @var array
@@ -32,6 +39,7 @@ class ApacheStatusService
     public function __construct()
     {
         $this->urls = config('app.apache_status_urls');
+        $this->cache_ttl = config('app.cache_status_seconds');
     }
 
     /**
@@ -71,11 +79,8 @@ class ApacheStatusService
                 // Create a unique cache key for each URL based on the URL itself
                 $cacheKey = 'apache_server_status_ips_' . md5($url);
 
-                // Cache time-to-live in seconds
-                $cacheTTL = 90;
-
                 $responseBody = Cache::remember(
-                    $cacheKey, $cacheTTL, function () use ($url) {
+                    $cacheKey, $this->cache_ttl, function () use ($url) {
 
                         // Fetch the server-status page using the Http facade
                         $response = Http::timeout(5)->get($url);
@@ -101,9 +106,7 @@ class ApacheStatusService
             }
 
             // Count occurrences of each unique IP address
-            //return array_count_values($ips);
             $ip_counter = array_count_values($ips);
-            //echo '<pre>', print_r($ip_counter, true), '</pre>';
             foreach ($ip_counter as $ip => $count) {
                 if ($count <= $this->min_connections) {
                     unset($ip_counter[$ip]);
@@ -113,14 +116,11 @@ class ApacheStatusService
             // Sort by count
             arsort($ip_counter);
 
-            //return $ip_counter;
-
-
             // Turn this into a new data structure
             $ip_data = array();
             foreach ($ip_counter as $ip => $count) {
                 $ip_data[] = (object) array(
-                    'ip' => $ip,
+                    'address' => $ip,
                     'count' => $count,
                     'country' => null,
                     'provider' => null,

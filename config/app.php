@@ -129,5 +129,13 @@ return [
      */
     'apache_status_urls' => explode(',', env('APACHE_STATUS_URLS')),
 
+    /**
+     * Cache duration for the apache status page lookups (seconds)
+     */
+    'cache_status_seconds' => env('CACHE_STATUS_SECONDS', '90'),
 
+    /**
+     * Cache duration for the IP lookups (seconds)
+     */
+    'cache_ip_seconds' => env('CACHE_IP_SECONDS', '43200'),
 ];

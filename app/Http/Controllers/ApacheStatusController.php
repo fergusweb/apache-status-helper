@@ -42,9 +42,10 @@ class ApacheStatusController extends Controller
 
             // Pass the IP counts to the view
             return view(
-                'apache-status', [
-                'ips' => $ips,
-                'min_connections' => $this->apacheStatusService->min_connections
+                'dashboard', [
+                    'ips'             => $ips,
+                    'cache_duration'  => $this->apacheStatusService->cache_ttl,
+                    'min_connections' => $this->apacheStatusService->min_connections
                 ]
             );
 
