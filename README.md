@@ -1,66 +1,39 @@
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
 
-## About Laravel
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Apache Status Helper
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+I manage some cPanel/WHM servers for hosting, and they get hammered with bot traffic.  One way to deal with that is to look at the Apache `server-status` page, which lists IP addresses & request URIs.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+I often see a bunch of POST requests to `wp-login.php`, or requests to strange URIs like `alfa-rex2.php`.  If I do an IP address lookup, those addresses often belong to VPN providers or to Cloud hosting providers.  That's a pretty clear sign of bot traffic, so I can ban the IP address using ConfigServer Firewall (csf).
 
-## Learning Laravel
+But that's a lot of steps.
+1. Check the `server-status` page and look for IP addresses that repeat.
+2. Use a 3rd party website to look up each address.
+3. Use my terminal to SSH to the server and run the `csf` command to ban that IP address.
+ 
+### Let's make life easier
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+I've built this app on Laravel, and set it up to run as a Docker container.  You can configure it through .env variables.  It provides a web interface, which checks the `server-status` page of each configured server, and provides a combined list of IP addresses.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+It provides a tool to look up an IP address with a single click, showing the country it's registered to and which network it belongs to.  There is a tickbox next to each IP address as well, and when selected, a list of commands will appear at the bottom of the page, making it easy to copy/paste the `csf -td` command to block the selected IP addresses.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Installation
 
-## Laravel Sponsors
+TODO
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### How to configure
 
-### Premium Partners
+Use a .env file which provides some settings like:
+```
+APP_TIMEZONE=Australia/Brisbane
+APACHE_STATUS_URLS=https://server1.com/server-status,https://server2.com/server-status
+CACHE_STATUS_SECONDS=90 # How long to cache the /server-status pages, in seconds.
+CACHE_IP_SECONDS=43200 # How long to cache the individual IP address lookups, in seconds.
+```
+Provide a comma-separated list of Apache server-status URLs, which must be accessible by the app.  On a cPanel server, this be configured via the WHM control panel.  Go to Server Configuration > Tweak Settings, then into the System tab looking for "Allow server-info and server-status".  You can configure which IP addresses are allowed to view that page here.
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+Other settings, for timezone and cache duration are optional.
 
-## Contributing
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).

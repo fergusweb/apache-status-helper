@@ -1,0 +1,12 @@
+services:
+  apache-status-helper:
+    container_name: apache-status-helper
+    image: apache-status-helper:latest
+    build:
+      target: web
+      context: .
+    env_file:
+      - .env
+    ports:
+      - "8055:80"
+
