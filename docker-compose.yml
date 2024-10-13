@@ -1,12 +1,37 @@
+
+## NETWORKS
+networks:
+  t3_proxy: # Declared in network stack
+    external: true
+
+## SERVICES
 services:
+
   apache-status-helper:
     container_name: apache-status-helper
     image: apache-status-helper:latest
     build:
-      target: web
+      target: deploy
       context: .
     env_file:
       - .env
+    environment:
+      SSL_MODE: "mixed"
+      PHP_OPCACHE_ENABLE: true
     ports:
-      - "8055:80"
+      - 8088:8080
+      - 8443:8443
+    networks:
+      t3_proxy:
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.apache-helper.rule=Host(`apache-helper.rabs.me`)
+      - traefik.http.routers.apache-helper.entrypoints=websecure
+      #- traefik.http.services.apache-helper.loadbalancer.server.port=8443
+      #- traefik.http.services.apache-helper.loadbalancer.server.scheme=https
 
+      - homepage.group=Containers
+      - homepage.name=Apache Status Helper
+      - homepage.description=Look at Apache server-status pages
+      - homepage.icon=apache.png
+      - homepage.href=https://apache-helper.rabs.me

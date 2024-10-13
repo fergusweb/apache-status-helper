@@ -1,35 +1,35 @@
-# Use PHP with Apache as the base image
-FROM php:8.2-apache AS web
+FROM serversideup/php:8.3-fpm-alpine AS base
 
-# Install Additional System Dependencies
-RUN apt-get update && apt-get install -y libzip-dev zip
+# Switch to root to install software
+USER root
+RUN apk add --update npm nano
+RUN install-php-extensions intl
 
-# Clear cache
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+# Switch back to default unprivileged user
+USER www-data
 
-# Enable Apache mod_rewrite for URL rewriting
-RUN a2enmod rewrite
 
-# Install PHP extensions
-RUN docker-php-ext-install pdo_mysql zip
 
-# Configure Apache DocumentRoot to point to Laravel's public directory
-# and update Apache configuration files
-ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
-RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
-RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
-# Copy the application code
-COPY . /var/www/html
+# Fix permission issues in development by setting the "www-data"
+# user to the same user and group that is running docker.
+FROM base AS development
+ARG USER_ID
+ARG GROUP_ID
+RUN docker-php-serversideup-set-id www-data ${USER_ID} ${GROUP_ID}
+
+FROM base AS deploy
+COPY --chown=www-data:www-data . /var/www/html
+
 
 # Set the working directory
 WORKDIR /var/www/html
-
-# Install composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-
 # Install project dependencies
 RUN composer install
-
-# Set permissions
-RUN chown -R www-data:www-data /var/www/html
+RUN npm install
+# Set up database
+RUN touch /var/www/html/database/database.sqlite
+RUN php artisan migrate --force
+# Running
+RUN npm run build
+#RUN php artisan serve --host=0.0.0.0 --port=8000

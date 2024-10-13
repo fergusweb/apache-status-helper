@@ -21,7 +21,17 @@ It provides a tool to look up an IP address with a single click, showing the cou
 
 ## Installation
 
-TODO
+Presently there is no image published to docker hub.  Build it here.
+
+TODO: This isn't fully working.  Docker image runs, but doesn't work behind my Traefik reverse proxy.
+
+```
+cd /opt/stacks/apache-status-helper/ # Navigate to your desired location
+git clone https://github.com/fergusweb/apache-status-helper .
+cp .env.example .env # And edit .env to configure the app
+docker compose build
+docker compose up -d
+```
 
 ### How to configure
 
