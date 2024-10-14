@@ -4,6 +4,7 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
+use App\Services\LookupIP;
 
 /**
  * Service class
@@ -116,16 +117,29 @@ class ApacheStatusService
             // Sort by count
             arsort($ip_counter);
 
+            // Perform a Bulk Lookup of all IPs now, to minimise the API calls
+            $lookupIP = new LookupIP();
+            $lookupIP->bulkLookup(array_keys($ip_counter));
+
             // Turn this into a new data structure
             $ip_data = array();
+
             foreach ($ip_counter as $ip => $count) {
+                $data = $lookupIP->lookup($ip);
+                //dd($data);
+                $data['count'] = $count;
+
+                $ip_data[] = $data;
+                /*
                 $ip_data[] = (object) array(
                     'address' => $ip,
                     'count' => $count,
                     'country' => null,
                     'provider' => null,
                 );
+                */
             }
+            //echo '<pre>IP Data: ', print_r($ip_data, true), '</pre>';
             return $ip_data;
 
         } catch (\Exception $e) {

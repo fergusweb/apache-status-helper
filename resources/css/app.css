@@ -30,6 +30,12 @@ p {
     margin-bottom:1em;
 }
 
+pre {
+    font-family:ui-monospace, Consolas, monospace;
+    border:1px solid rgba(255,255,255,0.2);
+    padding:0.5em;
+}
+
 table {
     border-collapse: collapse;
     width:100%;
@@ -116,9 +122,6 @@ ul.errors {
     }
     pre {
         grid-area:code;
-        font-family:ui-monospace, Consolas, monospace;
-        border:1px solid rgba(255,255,255,0.2);
-        padding:0.5em;
         margin-top:2px;
         text-align:left;
     }

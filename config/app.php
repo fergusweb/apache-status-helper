@@ -138,4 +138,10 @@ return [
      * Cache duration for the IP lookups (seconds)
      */
     'cache_ip_seconds' => env('CACHE_IP_SECONDS', '43200'),
+
+    /**
+     * API key for ipapi.is, for IP lookups
+     */
+    'ipapi_api_key' => env('IPAPI_API_KEY', null),
+
 ];

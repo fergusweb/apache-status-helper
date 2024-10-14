@@ -27,12 +27,15 @@
             </ul>
         @endif
 
-
         <h2>Connections</h2>
-
         <livewire:status-table :ips="$ips" :min_connections="$min_connections" />
 
+        <h2 style="padding-top:2em;">Helpful Commands</h2>
+        <p>This command shows all connections to your server, sorted by # connections.  Helpful for seeing if a huge spike is coming from one address.</p>
+        <pre>netstat -ntu | awk '{print $5}' | cut -d: -f1 | sort | uniq -c | sort -n</pre>
+
     </div>
+
 
 
     @livewireScripts

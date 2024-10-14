@@ -32,19 +32,24 @@ class StatusTable extends Component
     /**
      * Mount function
      *
-     * @param array $ip_count        Array of connections from service class
-     * @param int   $min_connections Minimum connections per IP to show
+     * @param LookupIP $lookupIP        Lookup class
+     * @param array    $ips             Array of IP addresses
+     * @param int      $min_connections Minimum connections per IP to show
      *
      * @return void
      */
-    public function mount($ips = array(), $min_connections=null, LookupIP $lookupIP)
+    public function mount(LookupIP $lookupIP, $ips = array(), $min_connections=5)
     {
         $this->ips = $ips;
         $this->min_connections = $min_connections;
 
+        //dd($this->ips);
+
         foreach ($this->ips as $key => $ip) {
-            $this->ips[$key] = $lookupIP->prepopulate($ip);
+
+            //$this->ips[$key] = $lookupIP->lookup($ip);
         }
+        //dd($this->ips);
     }
 
     /**
@@ -54,6 +59,7 @@ class StatusTable extends Component
      */
     public function render()
     {
+        //dd($this->ips);
         return view(
             'livewire.status-table', [
                 'ips'             => $this->ips,
@@ -66,12 +72,12 @@ class StatusTable extends Component
     /**
      * Perform lookup when requested by LiveWire
      *
-     * @param string   $key      Array key requested by LiveWire
      * @param LookupIP $lookupIP Service class
+     * @param string   $key      Array key requested by LiveWire
      *
      * @return void
      */
-    public function lookup($key=null, LookupIP $lookupIP)
+    public function lookup(LookupIP $lookupIP, $key=null)
     {
         $row = $this->ips[$key];
 

@@ -11,25 +11,93 @@
         </thead>
         <tbody>
             @foreach ($ips as $key => $ip)
-                <tr>
+                @php
+                if (!is_array($ip) || !array_key_exists('ip', $ip)) {
+                    continue;
+                }
+                $row_style = '';
+                if (array_key_exists('company', $ip) && stripos($ip['company']['name'], 'hostdime') !== false) {
+                    $row_style .= 'color:#009b15;';
+                }
+                @endphp
+
+
+                <tr style="{{ $row_style }}">
                     <td>
-                        <input id="check_{{ $key }}" type="checkbox" value="{{ $ip->address }}">
+                        <input id="check_{{ $key }}" type="checkbox" value="{{ $ip['ip'] }}">
                     </td>
                     <td>
                         <label for="check_{{ $key }}">
-                            {{ $ip->address }}
+                            {{ $ip['ip'] }}
                         </label>
                     </td>
-                    <td>{{ $ip->count }}</td>
                     <td>
-                        @if ($ip->country)
-                            <span class="fi fi-{{ $ip->countryCode }}"></span>
-                            {{ $ip->country }}
+                        {{ $ip['count'] }}
+                        @php
+                        if ($ip['is_datacenter']) {
+                            echo '<span title="Datacenter" class="fa-stack" style="font-size:0.6em;" >
+                                    <i class="fa-solid fa-circle fa-stack-2x" style="color:#a77e00"></i>
+                                    <i class="fa-solid fa-server fa-stack-1x fa-inverse"></i>
+                                </span>';
+                        }
+                        if ($ip['is_crawler']) {
+                            echo '<span title="Proxy Detected" class="fa-stack" style="font-size:0.6em;" >
+                                    <i class="fa-solid fa-circle fa-stack-2x" style="color:#4083e7"></i>
+                                    <i class="fa-solid fa-spider fa-stack-1x fa-inverse"></i>
+                                </span>';
+                        }
+                        if ($ip['is_proxy']) {
+                            echo '<span title="Proxy Detected" class="fa-stack" style="font-size:0.6em;" >
+                                    <i class="fa-solid fa-circle fa-stack-2x" style="color:#c00"></i>
+                                    <i class="fa-solid fa-info fa-stack-1x fa-inverse"></i>
+                                </span>';
+                        }
+                        if ($ip['is_vpn']) {
+                            echo '<span title="VPN Detected" class="fa-stack" style="font-size:0.6em;" >
+                                    <i class="fa-solid fa-circle fa-stack-2x" style="color:#c00"></i>
+                                    <i class="fa-solid fa-info fa-stack-1x fa-inverse"></i>
+                                </span>';
+                        }
+                        if ($ip['is_abuser']) {
+                            echo '<span title="Abuser Detected!" class="fa-stack" style="font-size:0.6em;" >
+                                    <i class="fa-solid fa-circle fa-stack-2x" style="color:#d36a08"></i>
+                                    <i class="fa-solid fa-exclamation fa-stack-1x fa-inverse"></i>
+                                </span>';
+                        }
+                        if ($ip['is_tor']) {
+                            echo '<span title="Tor Exit NOde" class="fa-stack" style="font-size:0.6em;" >
+                                    <i class="fa-solid fa-circle fa-stack-2x" style="color:#0bbaf0"></i>
+                                    <i class="fa-solid fa-tornado fa-stack-1x fa-inverse"></i>
+                                </span>';
+                        }
+
+                        @endphp
+                    </td>
+                    <td>
+                        @if (array_key_exists('location', $ip) && $ip['location']['country_code'])
+                            <span class="fi fi-{{ strtolower($ip['location']['country_code']) }}"></span>
+                            {{ $ip['location']['country'] }}
                         @else
                             <button type="button" wire:click="lookup({{ $key }})">Lookup</button>
                         @endif
                     </td>
-                    <td>{{ $ip->provider }}</td>
+                    <td>
+                        @php
+                        $provider = 'err';
+                        if (array_key_exists('company', $ip) && $ip['company']) {
+                            if (array_key_exists('doman', $ip['company'])) {
+                                $provider = 'Company: ' . $ip['company']['name'] . ' ('.$ip['company']['domain'].')';
+                            } else {
+                                $provider = 'Company: ' . $ip['company']['name'];
+                            }
+
+                        }
+                        if ($ip['is_datacenter'] && $ip['datacenter']) {
+                            $provider = 'Datacenter: ' . $ip['datacenter']['datacenter'];
+                        }
+                        @endphp
+                        {{ $provider }}
+                    </td>
                 </tr>
             @endforeach
 
@@ -40,6 +108,7 @@
             @endif
         </tbody>
     </table>
+
 
 
     <div class="commands">
@@ -65,6 +134,9 @@
     </div>
 
 
+    @php
+    //echo '<pre>', print_r($ips, true), '</pre>';
+    @endphp
 
 
 </div>
